@@ -6,14 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.bakingapp.R;
-import com.example.android.bakingapp.domain.Recipe;
 import com.example.android.bakingapp.domain.Step;
-import com.example.android.bakingapp.holders.RecipeViewHolder;
 import com.example.android.bakingapp.holders.StepViewHolder;
 import com.example.android.bakingapp.listeners.AdapterCallbacks;
-import com.squareup.picasso.Picasso;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 

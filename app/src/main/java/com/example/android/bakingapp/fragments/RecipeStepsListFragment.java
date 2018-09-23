@@ -1,11 +1,10 @@
 package com.example.android.bakingapp.fragments;
 
-import android.app.LauncherActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,16 +14,19 @@ import android.widget.TextView;
 
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.adapters.RecipeStepsAdapter;
+import com.example.android.bakingapp.constants.Constants;
 import com.example.android.bakingapp.domain.Ingredient;
 import com.example.android.bakingapp.domain.Recipe;
 import com.example.android.bakingapp.domain.Step;
 import com.example.android.bakingapp.listeners.AdapterCallbacks;
+import com.example.android.bakingapp.ui.StepDetailsActivity;
 
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindBool;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -46,6 +48,8 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     @BindView(R.id.recipe_details_steps)
     public RecyclerView mRecipeStepsRv;
     private RecipeStepsAdapter mRecipeStepsAdapter;
+    @BindBool(R.bool.is_tablet)
+    public boolean sTwoPane;
 
 
     @Nullable
@@ -80,6 +84,7 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
             for (Ingredient ingredient : ingredients) {
                 stringBuilder.append(ingredient.getIngredientName()).append(" - ")
                         .append(ingredient.getQuantity())
+                        .append(" ")
                         .append(ingredient.getMeasure())
                         .append("\n");
             }
@@ -96,6 +101,12 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
 
     @Override
     public void onClick(Step item) {
-
+        if(!sTwoPane) {
+            Intent intent = new Intent(getContext(), StepDetailsActivity.class);
+            intent.putParcelableArrayListExtra(Constants.STEPS_INTENT_EXTRA_TAG,
+                    (ArrayList<? extends Parcelable>) recipe.getSteps());
+            intent.putExtra(Constants.CURRENT_STEP_INTENT_EXTRA_TAG, item);
+            startActivity(intent);
+        }
     }
 }

@@ -7,5 +7,7 @@ package com.example.android.bakingapp.constants;
 public interface Constants {
 
     String RECIPE_INTENT_EXTRA_TAG = "RECIPE_INTENT_EXTRA_TAG";
+    String STEPS_INTENT_EXTRA_TAG = "STEPS_INTENT_EXTRA_TAG";
+    String CURRENT_STEP_INTENT_EXTRA_TAG = "CURRENT_STEP_INTENT_EXTRA_TAG";
 
 }
