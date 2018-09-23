@@ -16,70 +16,63 @@
 
 package com.example.android.bakingapp.ui;
 
+import android.content.Intent;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.GridView;
-import android.widget.Toast;
 
 import com.example.android.bakingapp.R;
+import com.example.android.bakingapp.adapters.RecipeAdapter;
+import com.example.android.bakingapp.constants.Constants;
 import com.example.android.bakingapp.data.RecipeParser;
 import com.example.android.bakingapp.domain.Recipe;
+import com.example.android.bakingapp.listeners.AdapterCallbacks;
 import com.example.android.bakingapp.utils.NetworkUtils;
 
-import java.net.URL;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.android.bakingapp.constants.JsonConstants.RECIPE_ACCESS_URL_STRING;
+import butterknife.BindBool;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Recipe>>{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Recipe>>, AdapterCallbacks<Recipe> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RECIPE_LOADER_ID = 0;
-
-    // Variables to store the values for the list index of the selected images
-    // The default value will be index = 0
-    private FragmentManager fragmentManager;
-
-    // COMPLETED Create a variable to track whether to display a two-pane or single-pane UI
-        // A single-pane display refers to phone screens, and two-pane to larger tablet screens
-    private boolean sTwoPane = false;
+    @BindView(R.id.recipe_items_rv)
+    public RecyclerView mRecipeItemsRv;
+    private RecipeAdapter mRecipeAdapter;
+    @BindBool(R.bool.is_tablet)
+    public boolean sTwoPane;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fragmentManager = getSupportFragmentManager();
 
-        // COMPLETED If you are making a two-pane display, add new BodyPartFragments to create an initial Android-Me image
-        // Also, for the two-pane display, get rid of the "Next" button in the master list fragment
-        if (findViewById(R.id.android_me_linear_layout) != null) {
-            sTwoPane = true;
-            findViewById(R.id.next_button).setVisibility(View.GONE);
-            ((GridView) findViewById(R.id.images_grid_view)).setNumColumns(2);
+        ButterKnife.bind(this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, sTwoPane ? 3 : 1);
+        mRecipeItemsRv.setLayoutManager(gridLayoutManager);
+        mRecipeItemsRv.setHasFixedSize(true);
 
-        }
+        initAdapter();
+
         getSupportLoaderManager().initLoader(RECIPE_LOADER_ID, null, this);
     }
 
-    // Define the behavior for onImageSelected
-    public void onImageSelected(int position) {
-        // Create a Toast that displays the position that was clicked
-        Toast.makeText(this, "Position clicked = " + position, Toast.LENGTH_SHORT).show();
-
-        if (sTwoPane) {
-        }
-        else {
-        }
-
+    private void initAdapter() {
+        mRecipeAdapter = new RecipeAdapter(this, new ArrayList<Recipe>());
+        mRecipeAdapter.setMCallbacks(this);
+        mRecipeItemsRv.setAdapter(mRecipeAdapter);
     }
 
     @Override
@@ -116,11 +109,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<Recipe>> loader, List<Recipe> data) {
+        if(CollectionUtils.isEmpty(data)) {
+            return;
+        }
 
+        mRecipeAdapter.updateRecipes(data);
+        mRecipeAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<List<Recipe>> loader) {
 
+    }
+
+    @Override
+    public void onClick(Recipe item) {
+        Intent intent = new Intent(this, RecipeDetailsActivity.class);
+        intent.putExtra(Constants.RECIPE_INTENT_EXTRA_TAG, item);
+        startActivity(intent);
     }
 }
