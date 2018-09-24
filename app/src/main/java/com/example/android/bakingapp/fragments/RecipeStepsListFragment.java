@@ -34,6 +34,8 @@ import butterknife.Unbinder;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.example.android.bakingapp.utils.ConverterUtils.ingredientsListToString;
+
 /**
  * Created by angelov on 9/20/2018.
  */
@@ -84,22 +86,6 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
         mRecipeStepsAdapter = new RecipeStepsAdapter(getContext(), mRecipe.getSteps());
         mRecipeStepsAdapter.setMCallbacks(this);
         mRecipeStepsRv.setAdapter(mRecipeStepsAdapter);
-    }
-
-    private String ingredientsListToString(List<Ingredient> ingredients) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if (!CollectionUtils.isEmpty(ingredients)) {
-            for (Ingredient ingredient : ingredients) {
-                stringBuilder.append(ingredient.getIngredientName()).append(" - ")
-                        .append(ingredient.getQuantity())
-                        .append(" ")
-                        .append(ingredient.getMeasure())
-                        .append("\n");
-            }
-        }
-
-        return stringBuilder.toString();
     }
 
     @Override

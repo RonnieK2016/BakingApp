@@ -12,28 +12,50 @@
         android:theme="@style/AppTheme">
 
         <!-- Declare the MainActivity in the manifest and set it to launch upon opening this app -->
-        <activity android:name=".ui.MainActivity" >
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.RecipeDetailsActivity"
             android:parentActivityName=".ui.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity"/>
+                android:value=".ui.MainActivity" />
         </activity>
-
         <activity
             android:name=".ui.StepDetailsActivity"
             android:parentActivityName=".ui.RecipeDetailsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.RecipeDetailsActivity"/>
+                android:value=".ui.RecipeDetailsActivity" />
         </activity>
+
+        <receiver android:name=".widget.BakingAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/baking_app_widget_info" />
+        </receiver>
+
+        <activity android:name=".widget.BakingAppWidgetConfigureActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".dataproviders.IngredientsContentProvider"
+            android:exported="false"
+            android:syncable="true"/>
+
 
     </application>
 

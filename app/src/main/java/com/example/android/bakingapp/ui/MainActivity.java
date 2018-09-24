@@ -30,8 +30,10 @@ import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.adapters.RecipeAdapter;
 import com.example.android.bakingapp.constants.Constants;
 import com.example.android.bakingapp.data.RecipeParser;
+import com.example.android.bakingapp.dataproviders.IngredientsDbContract;
 import com.example.android.bakingapp.domain.Recipe;
 import com.example.android.bakingapp.listeners.AdapterCallbacks;
+import com.example.android.bakingapp.utils.ConverterUtils;
 import com.example.android.bakingapp.utils.NetworkUtils;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -111,6 +113,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<List<Recipe>> loader, List<Recipe> data) {
         if(CollectionUtils.isEmpty(data)) {
             return;
+        }
+
+        getContentResolver().delete(IngredientsDbContract.RecipeRecord.CONTENT_URI, null, null);
+
+        for(Recipe recipe : data) {
+            getContentResolver().insert(IngredientsDbContract.RecipeRecord.CONTENT_URI,
+                    ConverterUtils.recipeToContentValues(recipe));
+
         }
 
         mRecipeAdapter.updateRecipes(data);
