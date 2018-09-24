@@ -19,6 +19,7 @@ import com.example.android.bakingapp.domain.Ingredient;
 import com.example.android.bakingapp.domain.Recipe;
 import com.example.android.bakingapp.domain.Step;
 import com.example.android.bakingapp.listeners.AdapterCallbacks;
+import com.example.android.bakingapp.listeners.ParentActivityCallback;
 import com.example.android.bakingapp.ui.StepDetailsActivity;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,7 +42,7 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
 
     @Getter
     @Setter
-    private Recipe recipe;
+    private Recipe mRecipe;
     private Unbinder unbinder;
     @BindView(R.id.recipe_details_ingredients)
     public TextView mRecipeIngredientsTextView;
@@ -50,6 +51,10 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     private RecipeStepsAdapter mRecipeStepsAdapter;
     @BindBool(R.bool.is_tablet)
     public boolean sTwoPane;
+    @Getter
+    @Setter
+    private ParentActivityCallback parentActivityCallback;
+    private static final String RECIPE_SAVED_TAG = "RECIPE_SAVED_TAG";
 
 
     @Nullable
@@ -58,9 +63,13 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        if (savedInstanceState != null) {
+            mRecipe = savedInstanceState.getParcelable(RECIPE_SAVED_TAG);
+        }
+
         View view = inflater.inflate(R.layout.recipe_steps_fragment, container, false);
         unbinder = ButterKnife.bind(this, view);
-        mRecipeIngredientsTextView.setText(ingredientsListToString(recipe.getIngredients()));
+        mRecipeIngredientsTextView.setText(ingredientsListToString(mRecipe.getIngredients()));
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         mRecipeStepsRv.setLayoutManager(linearLayoutManager);
@@ -72,7 +81,7 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     }
 
     private void initAdapter() {
-        mRecipeStepsAdapter = new RecipeStepsAdapter(getContext(), recipe.getSteps());
+        mRecipeStepsAdapter = new RecipeStepsAdapter(getContext(), mRecipe.getSteps());
         mRecipeStepsAdapter.setMCallbacks(this);
         mRecipeStepsRv.setAdapter(mRecipeStepsAdapter);
     }
@@ -94,6 +103,12 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(RECIPE_SAVED_TAG, mRecipe);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
@@ -104,9 +119,12 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
         if(!sTwoPane) {
             Intent intent = new Intent(getContext(), StepDetailsActivity.class);
             intent.putParcelableArrayListExtra(Constants.STEPS_INTENT_EXTRA_TAG,
-                    (ArrayList<? extends Parcelable>) recipe.getSteps());
+                    (ArrayList<? extends Parcelable>) mRecipe.getSteps());
             intent.putExtra(Constants.CURRENT_STEP_INTENT_EXTRA_TAG, item);
             startActivity(intent);
+        }
+        else {
+            parentActivityCallback.itemClicked(item);
         }
     }
 }

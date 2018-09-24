@@ -189,7 +189,6 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
 
         // Start the Media Session since the activity is active.
         mMediaSessionCompat.setActive(true);
-
     }
 
     @Override
