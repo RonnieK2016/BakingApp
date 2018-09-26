@@ -1,6 +1,7 @@
 package com.example.android.bakingapp.adapters;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.domain.Step;
 import com.example.android.bakingapp.holders.StepViewHolder;
 import com.example.android.bakingapp.listeners.AdapterCallbacks;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
@@ -26,14 +29,18 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private AdapterCallbacks<Step> mCallbacks;
     private Context mContext;
     private List<Step> mSteps;
+    private StepViewHolder selectedViewHolder;
+    private int selectedStepId;
+    private ColorStateList savedColorList;
 
     /**
      * Constructor method
      * @param steps The list of recipes to display
      */
-    public RecipeStepsAdapter(Context context, List<Step> steps) {
+    public RecipeStepsAdapter(Context context, List<Step> steps, int stepId) {
         mContext = context;
         mSteps = steps;
+        selectedStepId = stepId;
     }
 
     @Override
@@ -47,14 +54,20 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof StepViewHolder) {
             final Step selectedStep = mSteps.get(position);
-
             final StepViewHolder stepViewHolder = (StepViewHolder) holder;
-
             stepViewHolder.stepName.setText(selectedStep.getShortDescription());
+            if (selectedStepId == selectedStep.getId()) {
+                savedColorList = stepViewHolder.stepCardView.getCardBackgroundColor();
+                stepViewHolder.stepCardView.setCardBackgroundColor(mContext.getColor(R.color.colorPrimaryLight));
+                selectedViewHolder = stepViewHolder;
+            }
 
             stepViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    stepViewHolder.stepCardView.setCardBackgroundColor(mContext.getColor(R.color.colorPrimaryLight));
+                    selectedViewHolder.stepCardView.setCardBackgroundColor(savedColorList);
+                    selectedViewHolder = stepViewHolder;
                     if(mCallbacks!=null) {
                         mCallbacks.onClick(selectedStep);
                     }

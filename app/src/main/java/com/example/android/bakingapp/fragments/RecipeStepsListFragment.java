@@ -53,10 +53,12 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     private RecipeStepsAdapter mRecipeStepsAdapter;
     @BindBool(R.bool.is_tablet)
     public boolean sTwoPane;
+    private int selectedStepId;
     @Getter
     @Setter
     private ParentActivityCallback parentActivityCallback;
     private static final String RECIPE_SAVED_TAG = "RECIPE_SAVED_TAG";
+    private static final String SELECTED_STEP_ID = "SELECTED_STEP_ID";
 
 
     @Nullable
@@ -65,8 +67,11 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        selectedStepId = 0;
+
         if (savedInstanceState != null) {
             mRecipe = savedInstanceState.getParcelable(RECIPE_SAVED_TAG);
+            selectedStepId = savedInstanceState.getInt(SELECTED_STEP_ID);
         }
 
         View view = inflater.inflate(R.layout.recipe_steps_fragment, container, false);
@@ -83,7 +88,7 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     }
 
     private void initAdapter() {
-        mRecipeStepsAdapter = new RecipeStepsAdapter(getContext(), mRecipe.getSteps());
+        mRecipeStepsAdapter = new RecipeStepsAdapter(getContext(), mRecipe.getSteps(), selectedStepId);
         mRecipeStepsAdapter.setMCallbacks(this);
         mRecipeStepsRv.setAdapter(mRecipeStepsAdapter);
     }
@@ -92,6 +97,7 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(RECIPE_SAVED_TAG, mRecipe);
+        outState.putInt(SELECTED_STEP_ID, selectedStepId);
     }
 
     @Override
@@ -102,6 +108,7 @@ public class RecipeStepsListFragment extends Fragment implements AdapterCallback
 
     @Override
     public void onClick(Step item) {
+        selectedStepId = item.getId();
         if(!sTwoPane) {
             Intent intent = new Intent(getContext(), StepDetailsActivity.class);
             intent.putParcelableArrayListExtra(Constants.STEPS_INTENT_EXTRA_TAG,
