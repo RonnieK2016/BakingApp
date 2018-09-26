@@ -30,7 +30,7 @@ public final class ConverterUtils {
 
         if (!CollectionUtils.isEmpty(ingredients)) {
             for (Ingredient ingredient : ingredients) {
-                stringBuilder.append(ingredient.getIngredientName()).append(" - ")
+                stringBuilder.append(Character.toChars(0x2022)).append(ingredient.getIngredientName()).append(" - ")
                         .append(ingredient.getQuantity())
                         .append(" ")
                         .append(ingredient.getMeasure())
