@@ -2,10 +2,14 @@ package com.example.android.bakingapp.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.example.android.bakingapp.R;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Implementation of App Widget functionality.
@@ -13,16 +17,26 @@ import com.example.android.bakingapp.R;
  */
 public class BakingAppWidget extends AppWidgetProvider {
 
+    public static String[] loadedIngredients;
+
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
-        CharSequence widgetText = BakingAppWidgetConfigureActivity.loadIngredientPref(context, appWidgetId);
-        // Construct the RemoteViews object
+        String widgetText = BakingAppWidgetConfigureActivity.loadIngredientPref(context, appWidgetId);
+
+        if(!StringUtils.isEmpty(widgetText)) {
+            loadedIngredients = widgetText.split("\n");
+        }
+
+        Intent intent = new Intent(context, RecipeViewsService.class);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.baking_app_widget);
-        views.setTextViewText(R.id.appwidget_text, widgetText);
+        views.setRemoteAdapter(R.id.ingredients_list_view, intent);
+
+        ComponentName component = new ComponentName(context, BakingAppWidget.class);
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.ingredients_list_view);
 
         // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+        appWidgetManager.updateAppWidget(component, views);
     }
 
     @Override

@@ -50,6 +50,10 @@
             </intent-filter>
         </activity>
 
+        <service
+            android:name=".widget.RecipeViewsService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+
         <provider
             android:authorities="@string/content_authority"
             android:name=".dataproviders.IngredientsContentProvider"

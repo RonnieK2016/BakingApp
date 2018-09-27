@@ -69,7 +69,9 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
     SimpleExoPlayer mSimpleExoPlayer;
     private MediaSessionCompat mMediaSessionCompat;
     private PlaybackStateCompat.Builder mSBuilder;
+    private long currentPlaybackPosition = 0;
     private static final String CURRENT_STEP_SAVED_TAG =  "CURRENT_STEP_SAVED_TAG";
+    private static final String PLAYBACK_POSITION_SAVED_TAG =  "PLAYBACK_POSITION_SAVED_TAG";
 
 
     @Nullable
@@ -82,6 +84,7 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
         unbinder = ButterKnife.bind(this, view);
         if(savedInstanceState != null) {
             step = savedInstanceState.getParcelable(CURRENT_STEP_SAVED_TAG);
+            currentPlaybackPosition = savedInstanceState.getLong(PLAYBACK_POSITION_SAVED_TAG);
         }
         return view;
     }
@@ -91,12 +94,11 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
         super.onViewCreated(view, savedInstanceState);
         mStepDescriptionView.setText(step.getDescription());
 
-        if(!StringUtils.isEmpty(step.getVideoURL())) {
-            initializeMediaSession();
+        if(!StringUtils.isEmpty(step.getVideoURL()) && (mSimpleExoPlayer == null)) {
             mStepVideoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                     (getResources(), R.drawable.ic_cupcake_2));
             mStepVideoPlayerView.setVisibility(View.VISIBLE);
-            setupExoPlayer(Uri.parse(step.getVideoURL()));
+            setupExoPlayer();
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE && !isTwoPane) {
                 showPlayerFullScreen();
@@ -107,6 +109,22 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
             mStepVideoPlayerView.setVisibility(View.GONE);
         }
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            setupExoPlayer();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (Util.SDK_INT <= 23) {
+            setupExoPlayer();
+        }
     }
 
     private void hideUIElements() {
@@ -124,8 +142,12 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
         mStepVideoPlayerView.getLayoutParams().width = Constraints.LayoutParams.MATCH_PARENT;
     }
 
-    private void setupExoPlayer(Uri videoUri) {
-        if (mSimpleExoPlayer == null) {
+    private void setupExoPlayer() {
+        if (mSimpleExoPlayer == null && !StringUtils.isEmpty(step.getVideoURL())) {
+
+            initializeMediaSession();
+
+            Uri videoUri = Uri.parse(step.getVideoURL());
             // Create an instance of the ExoPlayer.
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
@@ -139,12 +161,19 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
             String userAgent = Util.getUserAgent(getContext(), "BakingAppVideoPlayer");
             MediaSource mediaSource = new ExtractorMediaSource(videoUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
+
+            mSimpleExoPlayer.seekTo(currentPlaybackPosition);
+
             mSimpleExoPlayer.prepare(mediaSource);
             mSimpleExoPlayer.setPlayWhenReady(true);
         }
     }
 
     private void initializeMediaSession() {
+
+        if(mMediaSessionCompat != null) {
+            return;
+        }
 
         // Create a MediaSessionCompat.
         mMediaSessionCompat = new MediaSessionCompat(getContext(), TAG);
@@ -195,19 +224,35 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(CURRENT_STEP_SAVED_TAG, step);
+        outState.putLong(PLAYBACK_POSITION_SAVED_TAG, currentPlaybackPosition);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        releasePlayer();
+
+        //rememeber position
+        if(mSimpleExoPlayer != null) {
+            currentPlaybackPosition = mSimpleExoPlayer.getCurrentPosition();
+        }
+
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-        releasePlayer();
     }
 
     @Override
