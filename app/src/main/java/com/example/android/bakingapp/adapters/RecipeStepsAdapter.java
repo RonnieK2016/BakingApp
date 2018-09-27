@@ -65,9 +65,11 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             stepViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    stepViewHolder.stepCardView.setCardBackgroundColor(mContext.getColor(R.color.colorPrimaryLight));
-                    selectedViewHolder.stepCardView.setCardBackgroundColor(savedColorList);
-                    selectedViewHolder = stepViewHolder;
+                    if(selectedViewHolder != stepViewHolder) {
+                        stepViewHolder.stepCardView.setCardBackgroundColor(mContext.getColor(R.color.colorPrimaryLight));
+                        selectedViewHolder.stepCardView.setCardBackgroundColor(savedColorList);
+                        selectedViewHolder = stepViewHolder;
+                    }
                     if(mCallbacks!=null) {
                         mCallbacks.onClick(selectedStep);
                     }

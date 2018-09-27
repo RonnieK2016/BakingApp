@@ -17,6 +17,10 @@
 package com.example.android.bakingapp.ui;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -32,6 +36,7 @@ import com.example.android.bakingapp.constants.Constants;
 import com.example.android.bakingapp.data.RecipeParser;
 import com.example.android.bakingapp.dataproviders.IngredientsDbContract;
 import com.example.android.bakingapp.domain.Recipe;
+import com.example.android.bakingapp.idlingresource.SimpleIdlingResource;
 import com.example.android.bakingapp.listeners.AdapterCallbacks;
 import com.example.android.bakingapp.utils.ConverterUtils;
 import com.example.android.bakingapp.utils.NetworkUtils;
@@ -54,7 +59,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private RecipeAdapter mRecipeAdapter;
     @BindBool(R.bool.is_tablet)
     public boolean sTwoPane;
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
 
+    @NonNull
+    @VisibleForTesting
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return  mIdlingResource;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +77,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, sTwoPane ? 3 : 1);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, sTwoPane ? 2 : 1);
         mRecipeItemsRv.setLayoutManager(gridLayoutManager);
         mRecipeItemsRv.setHasFixedSize(true);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         initAdapter();
-
         getSupportLoaderManager().initLoader(RECIPE_LOADER_ID, null, this);
     }
 
@@ -81,11 +99,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public Loader<List<Recipe>> onCreateLoader(int id, Bundle args) {
         return new AsyncTaskLoader<List<Recipe>>(this) {
 
-            private List<Recipe> weatherDataCached;
-
             @Override
             protected void onStartLoading() {
-                //mLoadingIndicator.setVisibility(View.VISIBLE);
+                if(mIdlingResource != null) {
+                    mIdlingResource.setIdleState(false);
+                }
                 forceLoad();
             }
 
@@ -112,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<List<Recipe>> loader, List<Recipe> data) {
         if(CollectionUtils.isEmpty(data)) {
+            if (mIdlingResource != null) {
+                mIdlingResource.setIdleState(true);
+            }
             return;
         }
 
@@ -125,6 +146,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         mRecipeAdapter.updateRecipes(data);
         mRecipeAdapter.notifyDataSetChanged();
+
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(true);
+        }
     }
 
     @Override
