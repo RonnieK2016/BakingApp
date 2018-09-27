@@ -98,7 +98,7 @@ public class RecipeStepDetailsFragment extends Fragment implements ExoPlayer.Eve
             mStepVideoPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                     (getResources(), R.drawable.ic_cupcake_2));
             mStepVideoPlayerView.setVisibility(View.VISIBLE);
-            setupExoPlayer();
+            //setupExoPlayer();
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE && !isTwoPane) {
                 showPlayerFullScreen();

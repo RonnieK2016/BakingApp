@@ -40,7 +40,9 @@ public class RecipeDetailsActivity extends AppCompatActivity implements ParentAc
 
         ActionBar supportActionBar = getSupportActionBar();
 
-        mRecipe = getIntent().getExtras().getParcelable(Constants.RECIPE_INTENT_EXTRA_TAG);
+        if (getIntent() != null) {
+            mRecipe = getIntent().getExtras().getParcelable(Constants.RECIPE_INTENT_EXTRA_TAG);
+        }
 
         if (savedInstanceState != null) {
             mRecipe = savedInstanceState.getParcelable(RECIPE_SAVED_TAG);

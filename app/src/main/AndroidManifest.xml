@@ -12,7 +12,8 @@
         android:theme="@style/AppTheme">
 
         <!-- Declare the MainActivity in the manifest and set it to launch upon opening this app -->
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,14 +22,16 @@
         </activity>
         <activity
             android:name=".ui.RecipeDetailsActivity"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName=".ui.MainActivity"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
         <activity
             android:name=".ui.StepDetailsActivity"
-            android:parentActivityName=".ui.RecipeDetailsActivity">
+            android:parentActivityName=".ui.RecipeDetailsActivity"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.RecipeDetailsActivity" />

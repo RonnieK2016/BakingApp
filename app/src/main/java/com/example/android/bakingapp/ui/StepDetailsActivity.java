@@ -57,7 +57,6 @@ public class StepDetailsActivity extends AppCompatActivity {
                 }
             }
         }
-        //setUpViewPagerListener();
 
         mViewPager.setAdapter(recipeStepsFragmentAdapter);
         mViewPager.setCurrentItem(currentStepId,true);

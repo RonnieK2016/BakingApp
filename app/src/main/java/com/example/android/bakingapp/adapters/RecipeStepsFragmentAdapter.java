@@ -3,6 +3,7 @@ package com.example.android.bakingapp.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.View;
 
 import com.example.android.bakingapp.domain.Step;
 import com.example.android.bakingapp.fragments.FragmentsHelper;
@@ -34,6 +35,15 @@ public class RecipeStepsFragmentAdapter extends FragmentStatePagerAdapter {
         RecipeStepDetailsFragment recipeStepDetailsFragment = new RecipeStepDetailsFragment();
         recipeStepDetailsFragment.setStep(mSteps.get(position));
         return recipeStepDetailsFragment;
+    }
+
+    @Override
+    public boolean isViewFromObject(View view, Object object) {
+        if(object != null){
+            return ((Fragment)object).getView() == view;
+        }else{
+            return false;
+        }
     }
 
     @Override
